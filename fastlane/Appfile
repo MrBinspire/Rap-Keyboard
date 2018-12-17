@@ -1,0 +1,7 @@
+app_identifier "com.therapapp.keyboard" # The bundle identifier of your app
+apple_id "marcin@vestione.com" # Your Apple email address
+
+team_id "UBAMSM93N4" # Developer Portal Team ID
+
+# you can even provide different app identifiers, Apple IDs and team names per lane:
+# More information: https://docs.fastlane.tools/advanced/#appfile

@@ -1,0 +1,72 @@
+# Customize this file, documentation can be found here:
+# https://docs.fastlane.tools/actions/
+# All available actions: https://docs.fastlane.tools/actions
+# can also be listed using the `fastlane actions` command
+
+# Change the syntax highlighting to Ruby
+# All lines starting with a # are ignored when running `fastlane`
+
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+fastlane_version "2.64.0"
+
+default_platform :ios
+
+platform :ios do
+  before_all do
+    # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
+    cocoapods
+    # carthage
+  end
+
+  desc "Runs all the tests"
+  lane :test do
+    scan
+  end
+
+  desc "Submit a new Beta Build to Apple TestFlight"
+  desc "This will also make sure the profile is up to date"
+  lane :beta do
+    # match(type: "appstore") # more information: https://codesigning.guide
+    gym(scheme: "HostingApp", export_method: 'ad-hoc') # Build your app - more options available
+    gym(scheme: "Keyboard", export_method: 'ad-hoc')
+    notes = changelog_from_git_commits(commits_count: 5)
+    crashlytics(api_token: "54ec6599c0669581eaa4f8f90e69441b4e30e42b",
+     build_secret: "7f737f9ba854b73a6f79194e2f79bc19904d9f495f0f4b55d739095eeefda0d5",
+     groups: ["vestione"], notes: notes)
+     increment_build_number(xcodeproj:'objcKeyboard.xcodeproj')
+     commit_version_bump(message: 'Version Bump', force: true)
+     push_to_git_remote()
+
+    #pilot
+
+    # sh "your_script.sh"
+    # You can also use other beta testing services here (run `fastlane actions`)
+  end
+
+
+  after_all do |lane|
+    # This block is called, only if the executed lane was successful
+
+    # slack(
+    #   message: "Successfully deployed new App Update."
+    # )
+  end
+
+  error do |lane, exception|
+    # slack(
+    #   message: exception.message,
+    #   success: false
+    # )
+  end
+end
+
+
+# More information about multiple platforms in fastlane: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
+# All available actions: https://docs.fastlane.tools/actions
+
+# fastlane reports which actions are used. No personal data is recorded.
+# Learn more at https://docs.fastlane.tools/#metrics
